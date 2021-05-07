@@ -1,0 +1,92 @@
+{% extends 'backend/backend_base.html' %}
+{% load static %}
+
+{% block js %}
+    <script src="https://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <script charset="utf-8" src="{% static 'kindeditor/kindeditor-all-min.js' %}"></script>  {# 富文本编辑器 #}
+
+{% endblock %}
+
+{% block articles %}
+    {# 富文本编辑器  #}
+    <div>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="form-group" style="margin-top: 10px">
+                <label for="">文章标题</label>
+                <input type="text" id="title" name="title" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="">内容</label>
+                <textarea name="content" id='id_textarea' cols="30" rows="10" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="">分类</label>
+                {% for category in category_list %}
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="category" value="{{ category.id }}" checked>
+                            {{ category.name }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="">标签</label>
+                {% for tag in tag_list %}
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="tag" value="{{ tag.id }}">
+                            {{ tag.name }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="text-center">
+                <input type="submit" value="发表" class="btn btn-danger" id="btn1" style="display: none">
+            </div>
+        </form>
+        <input type="button" value="发表" class="btn btn-danger btn2">
+    </div>
+
+{% endblock %}
+
+
+
+
+
+{% block script_left %}
+{#    <script>#}
+        {# 富文本编辑器 #}
+        KindEditor.ready(function (K) {
+            window.editor = K.create('#id_textarea', {
+                width: '100%',
+                height: '600px',
+                resizeType: 1,
+{#                items: ['source', '|', 'undo', 'redo', '|', 'preview', 'print', 'template', 'code', 'cut', 'copy', 'paste',#}
+{#                    'plainpaste', 'wordpaste', '|', 'justifyleft', 'justifycenter', 'justifyright',#}
+{#                    'justifyfull', 'insertorderedlist', 'insertunorderedlist', 'indent', 'outdent', 'subscript',#}
+{#                    'superscript', 'clearhtml', 'quickformat',#}
+{#                ],#}
+                uploadJson: '/upload_img/',
+                extraFileUploadParams: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }
+            });
+        });
+
+
+        {# 判断标题是否为空 #}
+        $('.btn2').click(function () {
+            {# 获取到标题框的值#}
+            var title = $('#title').val()
+            {# 去除左右两边空格#}
+            if (title.trim().length > 0) {
+                {# 如果有值则自动form表单提交#}
+                document.getElementById("btn1").click()
+            } else {
+                swal('标题不能为空')
+            }
+        })
+{#    </script>#}
+{% endblock %}

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>☣后台管理</title>
+    {% load static %}
+    <script src="{% static 'jquery-3.4.1/jquery.min.js' %}"></script>
+    <link href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}" rel="stylesheet">
+    <script src="{% static 'bootstrap-3.3.7/js/bootstrap.min.js' %}"></script>
+    {# 左侧边栏 #}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/sidebar.css' %}"/>
+    <link href="{% static 'plugins/css/icons.min.css' %}" rel="stylesheet" type="text/css"/>
+    <script src="{% static 'js/sidebar.js' %}"></script>
+    <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <script src="https://kit.fontawesome.com/850efabe3d.js" crossorigin="anonymous"></script>
+    {# 图标 #}
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    {# 模态框 #}
+    {% block js %}
+
+    {% endblock %}
+    <style>
+        .top-a {
+            font-size: 18px;
+            font-family: 华文行楷;
+            color: #3379b6;
+            font-weight: 550;
+            float: right;
+            margin-right: 25px;
+        }
+
+        .site-name {
+            display: inline-block;
+            height: 10px;
+            margin-left: 110px;
+            font-weight: 600;
+            color: #3379b6;
+            font-family: 华文行楷;
+            font-size: 25px;
+        }
+
+        .site-name2 {
+            display: none;
+        }
+
+        #id_img {
+            border-radius: 50%;
+            border: 3px solid #87b4ea;
+            display: block;
+            margin: 5px auto;
+        }
+
+        .img_div {
+            text-align: center;
+        }
+
+        {% block css %}
+
+        {% endblock %}
+    </style>
+</head>
+<body>
+<!-- 修改头像模态框,需要放在body下,不然会被遮盖-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" data-b>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">修改头像</h4>
+            </div>
+            <div class="modal-body">
+                {% csrf_token %}
+                <form id="my_form">
+                    <div class="form-group img_div">
+                        <label for="myfile">
+                            <img src="/media/{{ request.user.head }}" id='id_img' width="100px"
+                                 height="100px">
+                        </label>
+                        <div>选择新的头像</div>
+                        <input type="file" id="myfile" style="display: none">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">取消
+                </button>
+                <button type="button" class="btn btn-primary" id="id_submit" data-dismiss="modal">提交修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page" id="app">
+    <div class="nav-left" v-show="navLeftFlag" ref="navLeft">
+        <div class="LogoName">
+            <i class="fab fa-studiovinari"> 后台管理</i>
+        </div>
+        <div class="navDiv">
+            <div class="navName">导航</div>
+            <div class="nav-list">
+                <ul>
+                    <li class="nav-tab nav-ul">
+                        <a href="javascript:void[0]" class="li-a"><i class='bx bx-layer'></i> 操作
+                            <i class='bx bx-chevron-right' style="float: right;"></i></a>
+                        <div class="nav-box">
+                            <a href="{% url 'add_article_name' %}" class="li-a-a" target="iframe">新增文章</a>
+
+                            <!-- 修改头像模态框点击按钮 -->
+                            <a href="#" class="li-a-a" data-toggle="modal" data-target="#myModal">修改头像</a>
+
+
+                            <a href="#" class="li-a-a" target="iframe">后台管理</a>
+                        </div>
+                    </li>
+                    <li class="nav-tab nav-ul">
+                        <a href="javascript:void[0]" class="li-a"><i class='bx bx-cog'></i> 标签和分类
+                            <i class='bx bx-chevron-right' style="float: right;"></i></a>
+                        <div class="nav-box">
+                            <a href="#" class="li-a-a" target="iframe">修改标签</a>
+                            <a href="#" class="li-a-a" target="iframe">修改分类</a>
+                        </div>
+                    </li>
+                    <li class="nav-tab nav-ul">
+                        <a href="javascript:void[0]" class="li-a"><i class='bx bx-buildings'></i> 其他管理
+                            <i class='bx bx-chevron-right' style="float: right;"></i></a>
+                        <div class="nav-box">
+                            <a href="#" class="li-a-a" target="iframe">个人相册</a>
+                            <a href="#" class="li-a-a" target="iframe">邮件设置</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {# 侧边栏点击按钮隐藏,出现 #}
+    <div class="nav-right" ref="navRight">
+        <div class="nav-top">
+            <button type="button" class="btn btn-primary btn-sm hiddenBtn btn1" style="line-height: 10px;"
+                    @click="isShowLeft">
+                <i class="bx bx-grid-alt" style="font-size: 16px;"></i>
+            </button>
+            <div class="site-name">
+                <div class="site-name2">
+                    <span>⛅</span>后台管理
+                </div>
+            </div>
+            <a href="#" class="top-a logout1">退出登入</a>
+            <a href="#" class="top-a">订阅</a>
+            <a href="{% url 'home_name' %}" class="top-a">首页</a>
+        </div>
+        {# 主题内容 #}
+        <div class="content-page" ref="cPage">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <div>
+
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#article" aria-controls="article"
+                                                                          role="tab" data-toggle="tab">文章管理</a></li>
+                                <li role="presentation"><a href="#file" aria-controls="file" role="tab"
+                                                           data-toggle="tab">文件管理</a></li>
+                                <li role="presentation"><a href="#photo" aria-controls="photo" role="tab"
+                                                           data-toggle="tab">个人相册</a></li>
+                                <li role="presentation"><a href="#email" aria-controls="email" role="tab"
+                                                           data-toggle="tab">邮箱设置</a></li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active" id="article">
+                                    {% block articles %}
+
+                                    {% endblock %}</div>
+                                <div role="tabpanel" class="tab-pane" id="file">
+                                    {% block files %}
+
+                                    {% endblock %}</div>
+                                <div role="tabpanel" class="tab-pane" id="photo">
+                                    {% block phones %}
+
+                                    {% endblock %}</div>
+                                <div role="tabpanel" class="tab-pane" id="email">
+                                    {% block email %}
+
+                                    {% endblock %}</div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        let navflag = false;
+        $('.nav-tab').click(function () {
+            $(this).siblings().each(function () {
+                $(this).removeClass('a_active');
+                // $(this).removeClass('a_active');
+                $(this).find('.nav-box').css('height', '0')
+                //关闭右侧箭头
+                if ($(this).attr('class').indexOf('nav-ul') != -1) {
+                    $(this).find('.bx-chevron-right').css('transform', 'rotateZ(0deg)')
+                    $(this).find('.bx-chevron-right').css('transition', 'all .5s')
+                    $(this).removeClass('nav-show')
+                    // $(this).find('div').removeClass('nav-box')
+                }
+            })
+            //当前选中
+            $(this).addClass('a_active')
+            $(this).find('.li-a').addClass('active')
+            // 打开右侧箭头
+            $(this).find('.bx-chevron-right').css('transform', 'rotateZ(90deg)')
+            $(this).find('.bx-chevron-right').css('transition', 'all .5s')
+            $(this).addClass('nav-show')
+            // $(this).find('div').addClass('nav-box')
+        })
+        /* 二级菜单a点击事件 */
+        $(".li-a-a").click(function () {
+            $(".li-a-a").each(function () {
+                $(this).removeClass('active-li-a');
+            })
+            $(this).addClass('active-li-a');
+        })
+
+    })
+    const vue = new Vue({
+        el: '#app',
+        data: {
+            navLeftFlag: true
+        },
+        methods: {
+            isShowLeft() {
+                if (this.navLeftFlag) {
+                    this.$refs.navRight.style.paddingLeft = '0px'
+                    this.$refs.cPage.style.left = '0px';
+                    this.navLeftFlag = false;
+                } else {
+                    this.$refs.navRight.style.paddingLeft = '240px';
+                    this.$refs.cPage.style.left = '240px';
+                    this.navLeftFlag = true;
+                }
+            }
+        }
+    })
+
+    {#淡入淡出特效#}
+    $('.btn1').click(function () {
+        $('.site-name2').fadeToggle(500);
+    })
+
+    {# 退出登入 #}
+    $('.logout1').click(function () {
+        swal({
+            title: '是否退出!',
+            icon: "warning",
+            buttons: ["取消", "继续退出"],
+            dangerMode: true,
+        })
+            .then((willDelete) => {
+                if (willDelete) {
+                    swal('退出成功')
+                    location.href = '{% url 'logout_name' %}'
+                } else {
+                }
+            });
+    })
+
+
+    // 文件阅读器操作头像
+    $('#myfile').change(function () {
+        // 先拿到文件
+        let myfile = $(this)[0].files[0]
+        // new一个文件阅读器对象,将文件阅读到对象中
+        let FileReadObj = new FileReader()
+        FileReadObj.readAsDataURL(myfile)
+        // 等待文件阅读完成,再dom操作到img标签上
+        FileReadObj.onload = function () {
+            $('#id_img').attr('src', FileReadObj.result)
+        }
+    })
+
+
+    // 点击按钮,form表单及FormData对象添加数据
+    $('#id_submit').click(function () {
+        // 创建一个FormData对象
+        let FormDataObj = new FormData()
+        // 先将文件取到添加进去
+        FormDataObj.append('myfile', $('#myfile')[0].files[0])
+        // ajax请求提交数据
+        $.ajax({
+            url: '{% url 'img_change_name' %}',
+            method: 'post',
+            contentType: false,
+            processData: false,
+            data: FormDataObj,
+            success: function (data) {
+                if (data.status === 200) {
+                    swal({
+                        title: data.msg,
+                        icon: "success",
+                        dangerMode: true,
+                    })
+                }
+            }
+        })
+    })
+
+    {% block script_left %}
+
+    {% endblock %}
+
+</script>
+</body>
+</html>

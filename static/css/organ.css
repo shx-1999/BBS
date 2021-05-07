@@ -1,0 +1,63 @@
+#container {
+  height: 300px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 2px;
+  left: 2%;
+}
+#container .slide {
+  position: absolute;
+  display: block;
+  left: 0;
+  width: 300px;
+  height: 100%;
+  transition: all .4s ease;
+  cursor: pointer;
+}
+#container .slide.slide1 {
+	background-color: #92DCE5;
+	background-image: url(../img/organ/t1.png);
+}
+#container .slide.slide2 {
+  background-color: #EF6F6C;
+	background-image: url(../img/organ/t2.png);
+}
+#container .slide.slide3 {
+  background-color: #FF386D;
+	background-image: url(../img/organ/t3.png);
+}
+#container .slide.slide4 {
+  background-color: #E8DB7D;
+	background-image: url(../img/organ/t4.png);
+}
+#container .slide.slide5 {
+  background-color: #E8DB7D;
+	background-image: url(../img/organ/t2.png);
+}
+#container .slide.slide6 {
+  background-color: #E8DB7D;
+	background-image: url(../img/organ/t3.png);
+}
+#container .slide.slide7 {
+  background-color: #E8DB7D;
+	background-image: url(../img/organ/t4.png);
+}
+#container .slide.slide8 {
+  background-color: #E8DB7D;
+	background-image: url(../img/organ/t5.png);
+}
+#container .slide span{
+  font-family: 华文隶书;
+  font-size: 16px;
+  color: whitesmoke;
+  text-align: center;
+  display: block;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  line-height: 44px;
+  border-radius: 50%;
+  top: 50%;
+  margin-top: -20px;
+  transition: all .4s ease;opacity: .5;
+}

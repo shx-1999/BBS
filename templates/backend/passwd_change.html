@@ -1,0 +1,98 @@
+{% extends 'register.html' %}
+{% load static %}
+
+{% block title %}
+    🦢修改密码
+{% endblock %}
+
+
+{% block css %}
+    body{
+    background-image: url("{% static 'img/27.jpg' %}");
+    }
+    .c1 {
+    margin-top: 120px;
+    background: rgba(0, 0, 0, 0.3);
+    padding-top: 20px;
+    }
+    .c2 {
+    background: rgba(255, 255, 255, 0.2);
+    border: 0;
+    width: 400px;
+    margin: auto;
+    margin-bottom:20px;
+    }
+{% endblock %}
+
+{% block body %}
+    <div class="panel-heading text-center">
+        <h3 class="panel-title">修改密码</h3>
+    </div>
+    <div class="panel-body">
+        <form id="my_form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_password1">原密码</label>
+                <input type="password" name="password1" class="form-control" maxlength="18" minlength="3" required=""
+                       id="id_password1">
+            </div>
+            {% for foo in passwd_forms %}
+                <div class="form-group">
+                    <label for="{{ foo.auto_id }}">{{ foo.label }}</label>
+                    {{ foo }}
+                </div>
+            {% endfor %}
+        </form>
+        <input type="submit" value="提交" class="btn btn-block btn-warning" id="id_submit"><br>
+        <a href="{% url 'home_name' %}" class="btn btn-block btn-warning">取消</a><br>
+    </div>
+{% endblock %}
+
+
+
+{% block script %}
+{#    <script>#}
+        // 点击按钮,form表单
+        $('#id_submit').click(function () {
+            // ajax请求提交数据
+            $.ajax({
+                url: '{% url 'passwd_change_name' %}',
+                method: 'post',
+                data: {
+                    'password1': $('#id_password1').val(),
+                    'password': $('#id_password').val(),
+                    're_password': $('#id_re_password').val(),
+                    'csrfmiddlewaretoken':'{{ csrf_token }}',
+                },
+                success: function (data) {
+                    if (data.status === 100) {
+                        swal({
+                            title: data.msg,
+                            text: '跳转登入页面重新验证...',
+                            icon: "success",
+                            dangerMode: true,
+                        }).then(function () {
+                            location.href = '{% url 'login_name' %}';
+                        })
+                    } else {
+                        // 错误的结果返回errors字典,格式:{'username': [错误信息1,错误信息2,...], ...}
+                        $.each(data.msg, function (key, value) {
+                            // 错误的框添加红色边框
+                            $('#id_' + key).parent().addClass('has-error')
+                            swal({
+                                title: '操作失败!',
+                                text: value[0],
+                                icon: "warning",
+                                dangerMode: true,
+                            })
+                        })
+                    }
+                }
+            })
+        })
+        // 当用户点击输入框时清除has-error效果(聚焦)(或者使用定时器)
+        $('input').focus(function () {
+            $('.form-group').removeClass('has-error')
+        })
+{#    </script>#}
+{% endblock %}

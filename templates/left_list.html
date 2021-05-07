@@ -1,0 +1,38 @@
+
+{# inclusion_tag片段代码 #}
+<li class="nav-tab a_active waves-effect">
+    <a href="/{{ username }}" class="li-a active" ><i class='bx bx-home-smile'></i> 主页
+        <span class="badge badge-pill badge-primary float-right">🔥</span>
+    </a>
+</li>
+<li class="nav-tab nav-ul">
+    {# 添加javascript:void[0],不会触发该标签的事件 #}
+    <a href="javascript:void[0]" class="li-a" ><i
+            class='bx bx-layer'></i> 我的标签
+        <i class='bx bx-chevron-right' style="float: right;"></i></a>
+    <div class="nav-box">
+        {% for tag in tag_list %}
+            <p><a href="/{{ username }}/tag/{{ tag.2 }}.html">{{ tag.1 }}({{ tag.0 }})</a></p>
+        {% endfor %}
+    </div>
+</li>
+<li class="nav-tab nav-ul">
+    <a href="javascript:void[0]" class="li-a" ><i
+            class='bx bx-layer'></i> 我的分类
+        <i class='bx bx-chevron-right' style="float: right;"></i></a>
+    <div class="nav-box">
+        {% for category in category_list %}
+            <p><a href="/{{ username }}/category/{{ category.id }}.html">{{ category.name }}({{ category.count }})</a></p>
+        {% endfor %}
+    </div>
+</li>
+<li class="nav-tab nav-ul">
+    <a href="javascript:void[0]" class="li-a" ><i
+            class='bx bx-layer'></i> 随笔档案
+        <i class='bx bx-chevron-right' style="float: right;"></i></a>
+    <div class="nav-box">
+        {% for month in month_list %}
+            <p><a href="/{{ username }}/archive/{{ month.0|date:'Y/m' }}.html">{{ month.0|date:'Y年m月' }}({{ month.1 }})</a></p>
+        {% endfor %}
+    </div>
+</li>

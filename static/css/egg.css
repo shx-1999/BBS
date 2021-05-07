@@ -1,0 +1,117 @@
+
+.father-modal {
+    position: relative;
+    background-color: #f4c042;
+}
+
+.box {
+    width: 306px;
+    height: 300px;
+    margin: 300px auto 0;
+    background: url(../img/egg/1.png) no-repeat left bottom;
+    position: relative;
+}
+
+.sun {
+    width: 136px;
+    height: 136px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    top: 135px;
+    z-index: -1;
+    animation: move 2.7s infinite linear;
+}
+
+.sun .eye {
+    position: absolute;
+    top: 43%;
+    left: 30%;
+    animation: eye 2.7s infinite linear;
+}
+
+.sun .sunbody {
+    animation: scroll 2.7s infinite linear;
+}
+
+.box p {
+    text-align: center;
+    padding-top: 230px;
+    font-family: '苹方';
+    font-size: 25px;
+    color: #7a5600;
+    animation: opp 2.7s infinite linear;
+}
+
+@keyframes move {
+    0% {
+        transform: translateY(0);
+    }
+    10% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-40px);
+    }
+    70% {
+        transform: translateY(-40px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+@keyframes scroll {
+    0% {
+        transform: rotate(0);
+    }
+    40% {
+        transform: rotate(0);
+    }
+    50% {
+        transform: rotate(45deg);
+    }
+    60% {
+        transform: rotate(45deg);
+    }
+    100% {
+        transform: rotate(45deg);
+    }
+}
+
+@keyframes eye {
+    0% {
+        transform: translateX(0px);
+    }
+    50% {
+        transform: translateX(0px) scale(1, 1);
+    }
+    55% {
+        transform: translateX(0px) scale(1, 0.1);
+    }
+    60% {
+        transform: translateX(0px) scale(1);
+    }
+    70% {
+        transform: translateX(30px);
+    }
+    100% {
+        transform: translateX(30px);
+    }
+}
+
+@keyframes opp {
+    0% {
+        opacity: 1;
+    }
+    40% {
+        opacity: 1;
+    }
+    60% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+            🐹 注册界面
+        {% endblock %}
+    </title>
+    {% load static %}
+    <script src="{% static 'jquery-3.4.1/jquery.min.js' %}"></script>
+    <link href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}" rel="stylesheet">
+    <script src="{% static 'bootstrap-3.3.7/js/bootstrap.min.js' %}"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <style>
+        {% block css %}
+            body {
+                background-image: url("{% static 'img/21.jpg' %}");
+            }
+            .c1 {
+                margin-top: 80px;
+                background: rgba(0, 0, 0, 0.3);
+                padding-top: 20px;
+            }
+
+            #id_img {
+                border-radius: 50%;
+                border: 3px solid #87b4ea;
+                display: block;
+                margin: 5px auto;
+            }
+
+            .img_div {
+                text-align: center;
+            }
+
+            .c2 {
+                background: rgba(255, 255, 255, 0.2);
+                border: 0;
+                width: 400px;
+                margin: auto;
+            }
+        {% endblock %}
+    </style>
+</head>
+<body>
+<div class="container-fluid c1">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4 ">
+            <div class="panel panel-success c2">
+                {% block body %}
+                    <div class="panel-heading text-center">
+                        <h3 class="panel-title">注册</h3>
+                    </div>
+                    <div class="panel-body">
+                        <form id="my_form">
+                            <div class="form-group img_div">
+                                <label for="myfile">
+                                    <img alt='' src="/static/img/default.png" id='id_img' width="80px" height="80px">
+                                </label>
+                                <div>设置头像</div>
+                                <input type="file" id="myfile" style="display: none">
+                            </div>
+                            {% csrf_token %}
+                            {% for foo in register_form %}
+                                <div class="form-group">
+                                    <label for="{{ foo.auto_id }}">{{ foo.label }}</label>
+                                    {{ foo }}
+                                </div>
+                            {% endfor %}
+                        </form>
+                        <input type="submit" value="注册" class="btn btn-block btn-warning" id="id_submit"><br>
+                        <a href="{% url 'login_name' %}" class="btn btn-block btn-warning">Go login</a>
+                        <div style="display: none"> {# 判断用户是否存在 #}
+                            {% for user_name in user_name_list %}
+                                <input class="inp" value="{{ user_name }}">
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+<script>
+    {% block script %}
+    // 文件阅读器操作头像
+    $('#myfile').change(function () {
+        // 先拿到文件
+        let myfile = $(this)[0].files[0]
+        // new一个文件阅读器对象,将文件阅读到对象中
+        let FileReadObj = new FileReader()
+        FileReadObj.readAsDataURL(myfile)
+        // 等待文件阅读完成,再dom操作到img标签上
+        FileReadObj.onload = function () {
+            $('#id_img').attr('src', FileReadObj.result)
+        }
+    })
+    // username输入框失焦事件
+    $('#id_username').blur(function () {
+        $('.inp').each(function () {
+            if ($('#id_username').val() === $(this).val()) {
+                swal("用户已存在", {icon: "warning",})
+                $('#id_username').val('')
+            }
+        })
+    })
+    // 点击按钮,form表单及FormData对象添加数据
+    $('#id_submit').click(function () {
+        // 创建一个FormData对象
+        let FormDataObj = new FormData()
+        // 先将文件取到添加进去
+        FormDataObj.append('myfile', $('#myfile')[0].files[0])
+        // 再将名字密码等放进去
+        // 使用serializeArray()方法获取form表单下所有的key:value值的数组
+        let form_data = $('#my_form').serializeArray()
+        // 使用each循环将数组里的key:value取出来添加进FormData对象中去
+        $.each(form_data, function (index, element) {
+            FormDataObj.append(element.name, element.value)
+        })
+        // ajax请求提交数据
+        $.ajax({
+            url: '{% url 'register_name' %}',
+            method: 'post',
+            contentType: false,
+            processData: false,
+            data: FormDataObj,
+            success: function (data) {
+                if (data.status === 100) {
+                    swal({
+                        title: data.msg,
+                        text: $('#id_username').val(),
+                        icon: "success",
+                        buttons: ["继续注册", "前往登入"],
+                        dangerMode: true,
+                    })
+                        .then((willDelete) => {
+                            if (willDelete) {
+                                location.href = data.next_url;
+                            } else {
+                                location.href = '{% url 'register_name' %}';
+                            }
+                        });
+                } else {
+                    // 错误的结果返回errors字典,格式:{'username': [错误信息1,错误信息2,...], ...}
+                    $.each(data.msg, function (key, value) {
+                        // 错误的框添加红色边框
+                        $('#id_' + key).parent().addClass('has-error')
+                        swal({
+                            title: '注册失败',
+                            text: value[0],
+                            icon: "warning",
+                            dangerMode: true,
+                        })
+                    })
+                }
+            }
+        })
+    })
+    // 当用户点击输入框时清除has-error效果(聚焦)(或者使用定时器)
+    $('input').focus(function () {
+        $('.form-group').removeClass('has-error')
+    })
+    {% endblock %}
+</script>
+</html>

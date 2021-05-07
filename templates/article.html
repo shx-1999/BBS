@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{#站点作者名#}
+{% block usernames %}
+    {{ username }}
+{% endblock %}
+
+{# 站点名 #}
+{% block site_name %}
+    {{ article.blog.site_name }}
+{% endblock %}
+
+{% block js %}
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>  {# 模态框 #}
+    <script src="https://kit.fontawesome.com/850efabe3d.js" crossorigin="anonymous"></script>  {# 图标 #}
+    <link rel="stylesheet" href="/static/css/upanddown.css">
+    <link rel="stylesheet" href="/static/css/comments.css">
+{% endblock %}
+
+{% block css %}
+    .h3-font{
+    font-family: 华文行楷;
+    font-weight: 500;
+    font-size: 25px;
+    color: #6055d2;
+    }
+    .div-img{
+    height: 700px;
+    width: 100%;
+    background-image: url('{% static 'img/26.png' %}');
+    border-radius: 15px;
+    }
+{% endblock %}
+
+{% block title %}
+    {{ article.title }}--文章
+{% endblock %}
+
+{% block body-left %}
+    <div>
+        {# 文章内容 #}
+        <div class="text-center">
+            <h3 class="h3-font">{{ article.title }}</h3>
+        </div>
+        <hr>
+        <div>
+            {{ article.content|safe }}
+        </div>
+        {# 文章分类和标签 #}
+        <div style="margin-top: 40px">
+            <div class="article-category">
+                <strong>文章分类: </strong><a href="/{{ username }}/category">{{ article.categorys.name }}</a></div>
+            <div class="article-tag">
+                <strong>标签分类: </strong>
+                {% for tag in article.tags.all %}
+                    <a href="/{{ username }}/tag">{{ tag.name }}</a> /
+                {% endfor %}
+            </div>
+        </div>
+        {# 点赞点踩 #}
+        <div class="updown">
+            <div class="praise0">
+                <span class="praise praise1"><img src="{{ img_url }}"
+                                                  class="praise-img"/></span>
+                <span class="praise-txt">{{ article.up_num }}</span>
+                <span class="add-num"><em>+1</em></span>
+            </div>
+
+            <div class="praise0">
+                <span class="praise praise2"><img src="{{ img_url2 }}"
+                                                  class="praise-img"/></span>
+                <span class="praise-txt">{{ article.down_num }}</span>
+                <span class="add-num"><em>+1</em></span>
+            </div>
+        </div>
+
+        {# 文章评论 #}
+        <div>
+            <h3>评论列表</h3>
+            <div>
+                <ul class="list-group">
+                    {% for comment in comment_list %}
+                        <li class="list-group-item" style="margin-top: 15px;border-radius: 15px;background: #ecf6fc">
+                            <div style="margin-top: 6px">
+                                <span><i class="fab fa-forumbee"> {{ forloop.counter }}楼 </i></span>
+                                <span> <i class="far fa-clock">{{ comment.create_time|date:'Y-m-d H:i:s' }} </i> </span>
+                                <span><a href="/{{ comment.user.username }}"> <i class="fas fa-user-secret"> {{ comment.user.username }} </i></a></span>
+                                <span class="pull-right reply_span" username="{{ comment.user.username }}"
+                                      parent_id='{{ comment.id }}'><a> <i class="fab fa-battle-net"> 回复</i></a></span>
+                            </div>
+                            <div style="margin-top: 10px">
+                                {# 判断是否有父评论 #}
+                                {% if comment.comment_id %}
+                                    <div class="well well-sm" style="border-radius: 10px;background: #fdfdfd">
+                                        <p>@{{ comment.comment_id.user.username }}</p>
+                                        <p>{{ comment.comment_id.content }}</p>
+                                    </div>
+                                {% endif %}
+                                {{ comment.content }}
+                            </div>
+                        </li>
+                        <hr>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {# 评论框 #}
+        <div style="margin-bottom: 50px">
+            {% if request.user.is_authenticated %}
+                <div>
+                    <div id="commentform_title"><i class="far fa-comment-dots"> 留下你的足迹!</i></div>
+                    <textarea id="id_textarea"
+                              style="width: 100%;height:200px;border-radius: 10px;background: #f3f2da;padding: 10px">
+            </textarea>
+                    <div>
+                        <button class="btn btn-primary" id="id_btn_submit"><i class="fab fa-earlybirds"> 提交</i></button>
+                    </div>
+                </div>
+            {% else %}
+                <div>
+                    登录后才能查看或发表评论，立即 <a href="{% url 'login_name' %}">登录</a> 或者 <a href="{% url 'home_name' %}">逛逛</a>博客首页
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}
+
+{#主题内容右边文章#}
+{% block body-right %}
+    <div class="col-md-12">
+        <div class="div-img"></div>
+    </div>
+{% endblock %}
+
+
+
+{% block script_left %}
+{#    <script>#}
+        $(".praise").click(function () {
+            var this_praise = $(this);
+            var is_up = $(this).hasClass('praise1');
+            var praise_img = $(this).children('img');
+            var text_box = $(this).next().next();
+            var praise_txt = $(this).next();
+            var num = parseInt(praise_txt.text());
+            $.ajax({
+                url: '/diggit/',
+                method: 'post',
+                //谁（当前登录用户）对那篇文章点赞或点踩
+                data: {article_id: '{{ article.id }}', is_up: is_up, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                success: function (data) {
+                    if (data.status === 100) {
+                        praise_img.attr('src', '{% static '/img/upanddown/yizan.png' %}')
+                        praise_img.addClass('animation')
+                        praise_txt.removeClass("hover");
+                        text_box.show().html("<em class='add-animation'>+1</em>");
+                        $(".add-animation").removeClass("hover");
+                        num += 1;
+                        praise_txt.text(num)
+                        swal(data.msg)
+                    } else if (data.status === 102) {
+                        praise_img.attr('src', '{% static '/img/upanddown/yizan2.png' %}')
+                        praise_img.addClass('animation')
+                        praise_txt.removeClass("hover");
+                        text_box.show().html("<em class='add-animation'>+1</em>");
+                        $(".add-animation").removeClass("hover");
+                        num += 1;
+                        praise_txt.text(num)
+                        swal(data.msg)
+                    } else if (data.status === 101) {
+                        swal(data.msg)
+                    } else {
+                        swal({
+                            title: data.msg,
+                            text: $('#id_username').val(),
+                            icon: "warning",
+                            buttons: ["取消", "前往登入"],
+                            dangerMode: true,
+                        })
+                            .then((willDelete) => {
+                                if (willDelete) {
+                                    location.href = '/login/';
+                                } else {
+
+                                }
+                            });
+                    }
+
+                }
+            })
+
+        })
+
+
+        var parent_id = ''
+        $('#id_btn_submit').click(function () {
+            let content = $('#id_textarea').val()
+            if (parent_id) {
+                //子评论
+                //找content这个文本中第一个\n的位置
+                let count = content.indexOf('\n') + 1
+                //从这个位置往后截断
+                content = content.slice(count)
+                console.log(content)
+            }
+            $.ajax({
+                url: '/comment_content/',
+                method: 'post',
+                data: {
+                    'article_id': '{{ article.id }}',
+                    'content': content,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'parent_id': parent_id
+
+                },
+                success: function (data) {
+                    console.log(data)
+                    if (data.status == 100) {
+                        let username = data.username
+                        let res_content = data.res_content
+                        let res = ''
+                        if (parent_id) {
+                            let parent_name = data.parent_name
+                            let parent_content = data.parent_content
+                            res = `
+                              <li class="list-group-item" style="border-radius: 10px;background:#bffa95">
+                                <i class="fab fa-telegram"> ${username}</i>
+                                <div>
+                                   <div class="well" style="border-radius: 8px;background: #fdfdfd">
+                                       @${parent_name}--${parent_content}
+                                    </div>
+                                 ${res_content}
+                                </div>
+                            </li>
+                            <hr>
+                            `
+                        } else {
+                            res = `
+                            <li class="list-group-item" style="border-radius: 8px;background:#bffa95">
+                                <i class="fab fa-telegram"> ${username}</i>
+                                <div>
+                                 ${res_content}
+                                </div>
+                            </li>
+                            <hr>`
+                        }
+
+                        //把这个字符串追加到
+                        $('.list-group').append(res)
+                        //清空输入框
+                        $('#id_textarea').val('')
+                        //把parent_id置空
+                        parent_id = ''
+                    }
+
+                }
+            })
+
+        })
+
+        $('.reply_span').click(function () {
+            let username = $(this).attr('username')
+            $('#id_textarea').val('@' + username + '\n').focus()
+            parent_id = $(this).attr('parent_id')
+        })
+{#    </script>#}
+{% endblock %}
